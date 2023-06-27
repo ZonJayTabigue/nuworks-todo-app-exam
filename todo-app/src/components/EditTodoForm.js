@@ -1,11 +1,10 @@
 import React, {useState} from 'react'
 
 export const EditTodoForm = ({editTodo, task}) => {
-    const [value, setValue] = useState(task.task)
-
+    const [value, setValue] = useState(task.text)
     const handleSubmit = e => {
         e.preventDefault();
-        editTodo(value, task.id);
+        editTodo(value, task._id);
         setValue("");
     }
   return (
@@ -16,7 +15,7 @@ export const EditTodoForm = ({editTodo, task}) => {
             onChange={(e) => setValue(e.target.value)} 
         />
 
-        <button type='submit' className='todo-btn'>UPDATE</button>
+        <button type='submit' className='todo-btn'>SAVE</button>
     </form>
   )
 }
