@@ -1,33 +1,54 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { TodoForm } from './TodoForm'
 import { v4 as uuidv4 } from 'uuid'
 import { Todo } from './Todo';
 import { EditTodoForm } from './EditTodoForm';
+import { getTodosApi, addTodoApi, toggleCompleteApi, deleteTodoApi, editTodoApi } from '../utils/Handler';
 
 uuidv4();
 export const TodoWrapper = () => {
     const [todos, setTodos] = useState([])
+    const [isEditing, setIsEditing] = useState({
+        status: false,
+        id: 0
+    })
+
+    useEffect(() => {
+        getTodosApi(setTodos)
+    }, [])
 
     const addTodo = todo => {
-        setTodos([...todos, {id: uuidv4(), task: todo, completed: false, isEditing: false}])
-        // console.log(todos)
+        addTodoApi(todo, setTodos)
     }
 
-    const toggleComplete = id => {
-        setTodos(todos.map(todo => todo.id === id ? {...todo, completed: !todo.completed} : todo))
-        console.log(todos)
+    const toggleComplete = todo => {
+        toggleCompleteApi(todo._id, !todo.completed, setTodos)
     }
 
     const editTodo = id => {
-        setTodos(todos.map(todo => todo.id ===  id ? {...todo, isEditing: !todo.isEditing} : todo))
+        todos.map(todo => {
+            if (todo._id === id) {
+                setIsEditing({
+                    status: true,
+                    id: id
+                })
+                return todo
+            } else {
+                return todo
+            }
+        })
     }
 
-    const editTask = (task, id) =>  {
-        setTodos(todos.map(todo => todo.id === id ? {...todo, task, isEditing: !todo.isEditing} : todo))
+    const editTask = (text, id) =>  {
+        editTodoApi(id, text, setTodos)
+        setIsEditing({
+            status: false,
+            id: id
+        })
     }
 
     const deleteTodo = id => {
-        setTodos(todos.filter(todo => todo.id !== id))
+        deleteTodoApi(id, setTodos)
     }
 
     
@@ -35,18 +56,18 @@ export const TodoWrapper = () => {
     <div className='TodoWrapper'>
         <h1>TO-DO APP</h1>
         <TodoForm addTodo={addTodo} />
-        {todos.map((todo, index) => (
-            todo.isEditing ? (
-                <EditTodoForm editTodo={editTask} task={todo}/>
+        {todos.map((todo) => (
+            (isEditing.id === todo._id && isEditing.status) ? (
+                <EditTodoForm editTodo={editTask} task={todo} key={todo._id}/>
             ) : (
                 <Todo 
-                    task={todo} key={index}
+                    task={todo} key={todo._id}
                     toggleComplete={toggleComplete}
                     editTodo={editTodo}
                     deleteTodo={deleteTodo}
                 />
             )
-            
+        
         ))}
     </div>
   )
